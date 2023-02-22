@@ -1,0 +1,9 @@
+{
+    "gridSizeX": 28,
+    "gridSizeY": 28,
+    "gridWidth": 96,
+    "gridHeight":48,
+    "spawners": {},
+    "obstacles": {},
+    "stopPoints":[]
+}
