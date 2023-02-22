@@ -54,7 +54,8 @@ export class MapGui9902 extends Component {
             "Select Map": "Map 1",
             "Add Obstacle": () => { this.addObstacles(); },
             "Add Spawner": () => { this.addSpawner(); },
-            "Export Map": () => { this.addStopPoint(); },
+            "Add StopPoint": () => { this.addStopPoint(); },
+            "Export Map": () => { this.exportMap(); },
             "Clear Map": () => { this.node.emit("CLEAR_MAP"); },
         }
         this.node.on("SET_MAP", this.setMap, this);
@@ -157,7 +158,7 @@ export class MapGui9902 extends Component {
     _addSpawner(grid) {
         const gridId = this._map.gridToId(grid);
         this._map.addSpawner(gridId);
-        this.gridView.emit("DRAW_SPAWNERS", { grid });
+        this.gridView.emit("DRAW_SPAWNERS", gridId);
 
         const label = this._createLabel(grid.X, grid.Y);
         this.objectNode.addChild(label.node);
@@ -166,7 +167,7 @@ export class MapGui9902 extends Component {
     _addStopPoint(grid) {
         const gridId = this._map.gridToId(grid);
         this._map.addStopPoint(gridId);
-        this.gridView.emit("DRAW_STOP_POINTS", [grid]);
+        this.gridView.emit("DRAW_STOP_POINTS",gridId);
 
         const label = this._createLabel(grid.X, grid.Y);
         this.objectNode.addChild(label.node);
@@ -193,6 +194,16 @@ export class MapGui9902 extends Component {
         label.fontSize = 16;
         label.color = new Color(255, 255, 255, 255);
         return label;
+    }
+    exportMap() {
+        let config = this._map.getConfig();
+        let dataStr = JSON.stringify(config);
+        let dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        let exportFileDefaultName = 'mapConfig.json';
+        let linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
     }
 
 }

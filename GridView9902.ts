@@ -1,7 +1,7 @@
 import { _decorator, Component, Node, Color,Graphics } from 'cc';
 const { ccclass, property } = _decorator;
 
-const OPACITY = 50;
+const OPACITY = 100;
 
 const COLOR = {
     OBSTACLE: new Color(255, 0, 0, OPACITY),
