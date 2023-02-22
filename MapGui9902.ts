@@ -52,9 +52,9 @@ export class MapGui9902 extends Component {
         }
         this._mapControls = {
             "Select Map": "Map 1",
-            "Add Obstacle": () => { this.node.emit("ADD_OBSTACLE"); },
-            "Add Spawner": () => { this.node.emit("ADD_SPAWNER"); },
-            "Export Map": () => { this.node.emit("EXPORT_MAP"); },
+            "Add Obstacle": () => { this.addObstacles(); },
+            "Add Spawner": () => { this.addSpawner(); },
+            "Export Map": () => { this.addStopPoint(); },
             "Clear Map": () => { this.node.emit("CLEAR_MAP"); },
         }
         this.node.on("SET_MAP", this.setMap, this);
@@ -148,7 +148,7 @@ export class MapGui9902 extends Component {
     _addObstacles(grid) {
         const gridId = this._map.gridToId(grid);
         this._map.addObstacle(gridId);
-        this.gridView.emit("DRAW_OBSTACLES", { grid });
+        this.gridView.emit("DRAW_OBSTACLES", gridId);
         
         const label = this._createLabel(grid.X, grid.Y);
         this.objectNode.addChild(label.node);

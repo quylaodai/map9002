@@ -67,7 +67,7 @@ export class GridView9902 extends Component {
         }
         graphics.fillColor = color;
         const position = this._map.gridCenterToPosition(X, Y);
-        const { gridWidth, gridHeight } = this._map;
+        const { gridWidth, gridHeight } = this._mapConfig;
         graphics.moveTo(position.x - gridWidth / 2, position.y);
         graphics.lineTo(position.x, position.y + gridHeight / 2);
         graphics.lineTo(position.x + gridWidth / 2, position.y);
@@ -121,30 +121,48 @@ export class GridView9902 extends Component {
 
     drawObstacles(obstacles) {
         if (!obstacles) return;
-        for (let id in obstacles) {
-            const { X, Y } = this._map.idToGrid(id);
+        if (typeof obstacles === "number") {
+            let gridId = obstacles;
+            const { X, Y } = this._map.idToGrid(gridId);
             this._renderBlock(X, Y, this.obstacleGraphics, COLOR.OBSTACLE);
+        } else {
+            for (let id in obstacles) {
+                const { X, Y } = this._map.idToGrid(id);
+                this._renderBlock(X, Y, this.obstacleGraphics, COLOR.OBSTACLE);
+            }
         }
     }
 
     drawSpawner(spawners) {
         if (!spawners) return;
-        Object.keys(spawners).forEach(id => {
-            const { X, Y } = this._map.idToGrid(id);
+        if (typeof spawners === "number") {
+            let gridId = spawners;
+            const { X, Y } = this._map.idToGrid(gridId);
             this._renderBlock(X, Y, this.obstacleGraphics, COLOR.SPAWNER);
-        });
+        } else {
+            for (let id in spawners) {
+                const { X, Y } = this._map.idToGrid(id);
+                this._renderBlock(X, Y, this.obstacleGraphics, COLOR.SPAWNER);
+            }
+        }
     }
 
     drawStopPoints(stopPoints) {
         if (!stopPoints) return;
-        stopPoints.forEach(id => {
-            const { X, Y } = this._map.idToGrid(id);
-            for (let x = X - 1; x <= X + 1; x++) {
-                for (let y = Y - 1; y <= Y + 1; y++) {
-                    this._renderBlock(x, y, this.obstacleGraphics, COLOR.STOP_POINT);
+        if (typeof stopPoints === "number") {
+            let gridId = stopPoints;
+            const { X, Y } = this._map.idToGrid(gridId);
+            this._renderBlock(X, Y, this.obstacleGraphics, COLOR.SPAWNER);
+        } else {
+            stopPoints.forEach(id => {
+                const { X, Y } = this._map.idToGrid(id);
+                for (let x = X - 1; x <= X + 1; x++) {
+                    for (let y = Y - 1; y <= Y + 1; y++) {
+                        this._renderBlock(x, y, this.obstacleGraphics, COLOR.STOP_POINT);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
 

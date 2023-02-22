@@ -50,8 +50,8 @@ class Map {
         return { x, y };
     }
     idToGrid(gridId) {
-        const X = gridId % this.gridSizeX;
-        const Y = Math.floor(gridId / this.gridSizeX);
+        const X = gridId % this._config.gridSizeX;
+        const Y = Math.floor(gridId / this._config.gridSizeX);
         return { X, Y }
     }
     gridToId(grid, Y) {
@@ -60,7 +60,7 @@ class Map {
             X = grid.X;
             Y = grid.Y;
         }
-        return Y * this.gridSizeX + X;
+        return Y * this._config.gridSizeX + X;
     }
     isObstacle(point) {
         const gridId = (typeof point === "number") ? point : this.gridToId(point);
