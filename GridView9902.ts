@@ -9,12 +9,6 @@ const COLOR = {
     STOP_POINT: new Color(255, 255, 0, OPACITY),
 }
 
-const ActionType = {
-    CREATE_OBSTACLE: 0,
-    CREATE_SPAWNER: 1,
-    ADD_STOP_POINT: 2
-}
-
 @ccclass('GridView9902')
 export class GridView9902 extends Component {
     @property(Graphics)
@@ -33,9 +27,14 @@ export class GridView9902 extends Component {
 
     onLoad() {
         this.node.on("SET_MAP", this.setMap, this);
+
         this.node.on("SHOW_GRID", this.showGrid, this);
         this.node.on("SHOW_OBJECTS", this.showObjects, this);
         this.node.on("SHOW_PATH", this.showPath, this);
+
+        this.node.on("DRAW_OBSTACLES", this.drawObstacles, this);
+        this.node.on("DRAW_SPAWNERS", this.drawSpawner, this);
+        this.node.on("DRAW_STOP_POINTS", this.drawStopPoints, this);
     }
 
     setMap(map) {
@@ -120,7 +119,7 @@ export class GridView9902 extends Component {
         this.gridGraphic.stroke();
     }
 
-    _drawObstacles(obstacles) {
+    drawObstacles(obstacles) {
         if (!obstacles) return;
         for (let id in obstacles) {
             const { X, Y } = this._map.idToGrid(id);
@@ -128,19 +127,15 @@ export class GridView9902 extends Component {
         }
     }
 
-    _drawSpawner(spawners) {
+    drawSpawner(spawners) {
         if (!spawners) return;
         Object.keys(spawners).forEach(id => {
             const { X, Y } = this._map.idToGrid(id);
-            for (let x = X - 1; x <= X + 1; x++) {
-                for (let y = Y - 1; y <= Y + 1; y++) {
-                    this._renderBlock(x, y, this.obstacleGraphics, COLOR.SPAWNER);
-                }
-            }
+            this._renderBlock(X, Y, this.obstacleGraphics, COLOR.SPAWNER);
         });
     }
 
-    _drawStopPoints(stopPoints) {
+    drawStopPoints(stopPoints) {
         if (!stopPoints) return;
         stopPoints.forEach(id => {
             const { X, Y } = this._map.idToGrid(id);

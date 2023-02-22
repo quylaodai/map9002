@@ -12,9 +12,6 @@ export class MapManager9902 extends Component {
     @property(Node)
     character: Node = null;
 
-    @property(Node)
-    gridView: Node = null;
-
     @property(JsonAsset)
     mapConfigs: JsonAsset[] = [];
 
@@ -26,14 +23,14 @@ export class MapManager9902 extends Component {
     }
 
     start() {
-        this.changeMap(0);
+        this.changeMap(1);
         window["map"] = this._map;
     }
 
-    changeMap(index){
-        this._config = this.mapConfigs[index].json;
+    changeMap(id){
+        this._config = this.mapConfigs[id - 1].json;
         this._map = new Map(this._config);
-        this.gridView && this.gridView.emit("SET_MAP", this._map);
+        this.node.emit("SET_MAP", this._map);
     }
 
 }

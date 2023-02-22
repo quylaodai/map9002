@@ -27,23 +27,26 @@ class Map {
         this._config.stopPoints = [];
     }
     positionToGrid(x, y) {
-        const X = Math.floor((x - this.startX) / this.gridWidth + (this.startY - y) / this.gridHeight);
-        const Y = Math.floor((this.startY - y) / this.gridHeight - (x - this.startX) / this.gridWidth);
+        const { startX, startY, gridWidth, gridHeight } = this._config;
+        const X = Math.floor((x - startX) / gridWidth + (startY - y) / gridHeight);
+        const Y = Math.floor((startY - y) / gridHeight - (x - startX) / gridWidth);
         return { X, Y };
     }
     gridToPosition(X, Y) {
-        const x = this.startX + (X - Y) * this.gridWidth / 2;
-        const y = this.startY - (X + Y) * this.gridHeight / 2;
+        const { startX, startY, gridWidth, gridHeight } = this._config;
+        const x = startX + (X - Y) * gridWidth / 2;
+        const y = startY - (X + Y) * gridHeight / 2;
         return { x, y };
     }
     gridCenterToPosition(grid, Y) {
+        const { startX, startY, gridWidth, gridHeight } = this._config;
         let X = grid;
         if (Y === undefined) {
             X = grid.X;
             Y = grid.Y;
         }
-        const x = this.startX + (X - Y) * this.gridWidth / 2;
-        const y = this.startY - (X + Y + 1) * this.gridHeight / 2;
+        const x = startX + (X - Y) * gridWidth / 2;
+        const y = startY - (X + Y + 1) * gridHeight / 2;
         return { x, y };
     }
     idToGrid(gridId) {

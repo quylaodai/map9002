@@ -1,11 +1,22 @@
-import { _decorator, Component, Node, UITransform, Vec3 } from 'cc';
+import { _decorator, Component, Node, Label, Vec3, Camera ,UITransform, Color} from 'cc';
 
 const { ccclass, property } = _decorator;
 const dat = globalThis.dat;
 const guiWidth = 150;
 
+enum ActionType {
+    NONE = 0,
+    CREATE_OBSTACLE = 1,
+    CREATE_SPAWNER = 2,
+    ADD_STOP_POINT = 3,
+    GEN_PATH = 4,
+    FIND_SHORTED_PATH = 5
+}
+
 @ccclass('MapGui9902')
 export class MapGui9902 extends Component {
+    @property(Camera)
+    camera: Camera = null;
     @property(Node)
     gridView: Node = null;
     @property(Node)
@@ -16,12 +27,17 @@ export class MapGui9902 extends Component {
     pathNode: Node = null;
     @property(Node)
     background: Node = null;
+    @property(Node)
+    labelHolder: Node = null;
 
     _viewControls: any = null;
     _viewGui: any = null;
 
     _mapControls: any = null;
     _mapGui: any = null;
+    _hoverLabel: Label = null;
+    _action = ActionType.NONE;
+    _map: any = null;
 
     onLoad() {
         this._viewControls = {
@@ -41,6 +57,13 @@ export class MapGui9902 extends Component {
             "Export Map": () => { this.node.emit("EXPORT_MAP"); },
             "Clear Map": () => { this.node.emit("CLEAR_MAP"); },
         }
+        this.node.on("SET_MAP", this.setMap, this);
+        this.background.on(Node.EventType.MOUSE_DOWN, this.onMouseDown, this, false);
+        this.background.on(Node.EventType.MOUSE_MOVE, this.onMouseMove, this, false);
+    }
+    setMap(map){
+        this._map = map;
+        this.gridView && this.gridView.emit("SET_MAP", this._map);
     }
     start(){
         this._createViewGui();
@@ -48,6 +71,7 @@ export class MapGui9902 extends Component {
             this._updateView(key, this._viewControls[key]);
         }
         this._createMapGui();
+        this._hoverLabel = this._createLabel(0, 0);
     }
     _createViewGui() {
         const gui = new dat.GUI({ name: "View", width: 150 });
@@ -95,6 +119,80 @@ export class MapGui9902 extends Component {
                 mapFolder.add(this._mapControls, key).onChange(() => mapFolder.close());
             }
         }
+    }
+    onMouseMove(ev) {
+        const location = ev.getLocation(new Vec3());
+        const worldPos = this.camera.screenToWorld(location, new Vec3());
+        const localPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(worldPos);
+        const { X, Y } = this._map.positionToGrid(localPos.x, localPos.y);
+        if (X < 0 || Y < 0 || X > 30 || Y > 30) return;
+        this._hoverLabel.string = X + "-" + Y;
+        const pos = this._map.gridCenterToPosition(X, Y);
+        this._hoverLabel.node.setPosition(pos.x, pos.y);
+    }
+    onMouseDown(ev) {
+        const location = ev.getLocation(new Vec3());
+        const worldPos = this.camera.screenToWorld(location, new Vec3());
+        const localPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(worldPos);
+        const gridPos = this._map.positionToGrid(localPos.x, localPos.y);
+
+        switch (this._action) {
+            case ActionType.NONE: return;
+            case ActionType.CREATE_OBSTACLE: return this._addObstacles(gridPos);
+            case ActionType.CREATE_SPAWNER: return this._addSpawner(gridPos);
+            case ActionType.ADD_STOP_POINT: return this._addStopPoint(gridPos);
+            // case ActionType.GEN_PATH: return this._genPath(gridPos);
+            // case ActionType.FIND_SHORTED_PATH: return this._findShortedPart(gridPos);
+        }
+    }
+    _addObstacles(grid) {
+        const gridId = this._map.gridToId(grid);
+        this._map.addObstacle(gridId);
+        this.gridView.emit("DRAW_OBSTACLES", { grid });
+        
+        const label = this._createLabel(grid.X, grid.Y);
+        this.objectNode.addChild(label.node);
+        label.node._uiProps.colorDirty = true;
+    }
+    _addSpawner(grid) {
+        const gridId = this._map.gridToId(grid);
+        this._map.addSpawner(gridId);
+        this.gridView.emit("DRAW_SPAWNERS", { grid });
+
+        const label = this._createLabel(grid.X, grid.Y);
+        this.objectNode.addChild(label.node);
+        label.node._uiProps.colorDirty = true;
+    }
+    _addStopPoint(grid) {
+        const gridId = this._map.gridToId(grid);
+        this._map.addStopPoint(gridId);
+        this.gridView.emit("DRAW_STOP_POINTS", [grid]);
+
+        const label = this._createLabel(grid.X, grid.Y);
+        this.objectNode.addChild(label.node);
+        label.node._uiProps.colorDirty = true;
+    }
+    addObstacles() {
+        this._action = ActionType.CREATE_OBSTACLE;
+    }
+    addSpawner() {
+        this._action = ActionType.CREATE_SPAWNER;
+    }
+    addStopPoint() {
+        this._action = ActionType.ADD_STOP_POINT;
+    }
+    _createLabel(X: number, Y: number): Label {
+        const labelNode = new Node();
+        this.labelHolder.addChild(labelNode);
+        labelNode.active = true;
+        labelNode._uiProps.colorDirty = true;
+        const label = labelNode.addComponent(Label);
+        label.string = X + "-" + Y;
+        const pos = this._map.gridCenterToPosition(X, Y);
+        labelNode.setPosition(pos.x, pos.y);
+        label.fontSize = 16;
+        label.color = new Color(255, 255, 255, 255);
+        return label;
     }
 
 }
