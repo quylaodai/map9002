@@ -10,6 +10,9 @@ export class MapManager9902 extends Component {
     bg: Node = null;
 
     @property(Node)
+    viewport: Node = null;
+
+    @property(Node)
     character: Node = null;
 
     @property(JsonAsset)
@@ -17,7 +20,8 @@ export class MapManager9902 extends Component {
 
     _map: any = null;
     _config: any = null;
-    _tweenMove: any = null;
+    _tweenCharacter: any = null;
+    _tweenViewport: any = null;
     _keyFrames: any = null;
     _spine: any = null;
 
@@ -41,18 +45,19 @@ export class MapManager9902 extends Component {
     move(path){
         path = this._map.convertToGridPath(path);
         this._keyFrames = this._getKeyFrames(path);
-        this._move();
+        this._moveCharacter();
+        this._moveViewPort();
     }
 
-    _move() {
+    _moveCharacter() {
         const keyFrames = this._keyFrames;
         this.character.setPosition(keyFrames[0].position);
 
-        this._tweenMove = tween(this.character);
+        this._tweenCharacter = tween(this.character);
         keyFrames.forEach((frame, index) => {
             const { position, dur, skin, scaleX } = frame;
             if (index > 0) {
-                this._tweenMove
+                this._tweenCharacter
                     .call(() => {
                         this.character.scale = v3(scaleX, 1, 1);
                         this._spine.setSkin(skin);
@@ -60,8 +65,29 @@ export class MapManager9902 extends Component {
                     .to(dur, { position })
             }
         });
-        this._tweenMove.call(() => {
-            this._tweenMove = null;
+        this._tweenCharacter.call(() => {
+            this._tweenCharacter = null;
+        }).start();
+    }
+    _moveViewPort(){
+        const keyFrames = this._keyFrames;
+        const viewPortFrames = keyFrames.map(frame =>{
+            let newFrames: any = {};
+            newFrames.dur = frame.dur;
+            newFrames.position = v3(-frame.position.x,-frame.position.y);
+            return newFrames;
+        })
+        this.viewport.setPosition(viewPortFrames[0].position);
+
+        this._tweenViewport = tween(this.viewport);
+        viewPortFrames.forEach((frame, index) => {
+            const { position, dur } = frame;
+            if (index > 0) {
+                this._tweenViewport.to(dur, { position })
+            }
+        });
+        this._tweenViewport.call(() => {
+            this._tweenViewport = null;
         }).start();
     }
     _getKeyFrames(path) {
