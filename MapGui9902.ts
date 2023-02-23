@@ -38,6 +38,7 @@ export class MapGui9902 extends Component {
     _hoverLabel: Label = null;
     _action = ActionType.NONE;
     _map: any = null;
+    _points: any[] = null;
 
     onLoad() {
         this._viewControls = {
@@ -142,7 +143,7 @@ export class MapGui9902 extends Component {
             case ActionType.CREATE_OBSTACLE: return this._addObstacles(gridPos);
             case ActionType.CREATE_SPAWNER: return this._addSpawner(gridPos);
             case ActionType.ADD_STOP_POINT: return this._addStopPoint(gridPos);
-            // case ActionType.GEN_PATH: return this._genPath(gridPos);
+            case ActionType.GEN_PATH: return this._genPath(gridPos);
             // case ActionType.FIND_SHORTED_PATH: return this._findShortedPart(gridPos);
         }
     }
@@ -204,6 +205,23 @@ export class MapGui9902 extends Component {
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
+    }
+
+    _findShortedPart(point) {
+        if (this._points.length === 0) {
+            this.gridView.emit("CLEAR_PATH");
+            this.gridView.emit("RENDER_BLOCK", point.X, point.Y, null, new Color(100, 100, 0, 255));
+            this._points.push(point);
+            return;
+        }
+
+        let p1 = this._points[this._points.length - 1];
+        let p2 = point;
+        if (p1.X === p2.X && p1.Y === p2.Y) return;
+
+        this.gridView.emit("RENDER_BLOCK", point.X, point.Y, null, new Color(100, 100, 0, 255));
+        const path = this._map.genPath(p1, p2);
+        this.gridView.emit("DRAW_PATH", path);
     }
 
 }
