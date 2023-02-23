@@ -100,7 +100,6 @@ class PathGen {
     _exportPath(end){
         const path = [];
         let temp = end;
-        path.push(temp);
         while (temp.prev) {
             path.push(temp.prev);
             temp = temp.prev;
