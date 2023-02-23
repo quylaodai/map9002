@@ -142,7 +142,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 1170.2261306532664,
+    "_orthoHeight": 608.5175879396985,
     "_near": 0,
     "_far": 2000,
     "_color": {
@@ -1236,14 +1236,8 @@
     "gridView": {
       "__id__": 11
     },
-    "gridNode": {
-      "__id__": 12
-    },
     "objectNode": {
       "__id__": 15
-    },
-    "pathNode": {
-      "__id__": 18
     },
     "background": {
       "__id__": 7
@@ -1300,10 +1294,10 @@
     "__prefab": null,
     "_alignFlags": 45,
     "_target": null,
-    "_left": 2.2737367544323206e-13,
-    "_right": 2.2737367544323206e-13,
-    "_top": -1075354.3118427075,
-    "_bottom": -1075354.3118427075,
+    "_left": -2.2737367544323206e-13,
+    "_right": -2.2737367544323206e-13,
+    "_top": -1090234.3118427075,
+    "_bottom": -1090234.3118427075,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
     "_isAbsLeft": true,

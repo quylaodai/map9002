@@ -20,11 +20,7 @@ export class MapGui9902 extends Component {
     @property(Node)
     gridView: Node = null;
     @property(Node)
-    gridNode: Node = null;
-    @property(Node)
     objectNode: Node = null;
-    @property(Node)
-    pathNode: Node = null;
     @property(Node)
     background: Node = null;
     @property(Node)
@@ -38,7 +34,7 @@ export class MapGui9902 extends Component {
     _hoverLabel: Label = null;
     _action = ActionType.NONE;
     _map: any = null;
-    _points: any[] = null;
+    _points: any[] = [];
 
     onLoad() {
         this._viewControls = {
@@ -46,10 +42,8 @@ export class MapGui9902 extends Component {
             Object: true,
             Path: true,
             Background: true,
-            Gun: false,
-            "Gen Path": () => { this.node.emit("GEN_PATH") },
-            "Find Shorted Path": () => { this.node.emit("FIND_SHORTED_PATH") },
-            "Clear Paths": () => { this.node.emit("CLEAR_PATH") },
+            "Gen Path": () => { this.genPath(); },
+            "Clear Paths": () => { this.clearPath(); },
         }
         this._mapControls = {
             "Select Map": "Map 1",
@@ -183,6 +177,14 @@ export class MapGui9902 extends Component {
     addStopPoint() {
         this._action = ActionType.ADD_STOP_POINT;
     }
+    genPath() {
+        this._points.length = 0;
+        this._action = ActionType.GEN_PATH;
+    }
+    clearPath() {
+        this._points.length = 0;
+        this.gridView.emit("CLEAR_PATH");
+    }
     _createLabel(X: number, Y: number): Label {
         const labelNode = new Node();
         this.labelHolder.addChild(labelNode);
@@ -207,10 +209,10 @@ export class MapGui9902 extends Component {
         linkElement.click();
     }
 
-    _findShortedPart(point) {
+    _genPath(point) {
         if (this._points.length === 0) {
             this.gridView.emit("CLEAR_PATH");
-            this.gridView.emit("RENDER_BLOCK", point.X, point.Y, null, new Color(100, 100, 0, 255));
+            this.gridView.emit("RENDER_BLOCK", point.X, point.Y, null, new Color(100, 0, 100, 255));
             this._points.push(point);
             return;
         }
@@ -219,8 +221,9 @@ export class MapGui9902 extends Component {
         let p2 = point;
         if (p1.X === p2.X && p1.Y === p2.Y) return;
 
-        this.gridView.emit("RENDER_BLOCK", point.X, point.Y, null, new Color(100, 100, 0, 255));
+        this.gridView.emit("RENDER_BLOCK", point.X, point.Y, null, new Color(100, 0, 100, 255));
         const path = this._map.genPath(p1, p2);
+        console.warn(path);
         this.gridView.emit("DRAW_PATH", path);
     }
 

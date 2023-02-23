@@ -3,6 +3,11 @@ const { PathGen } = require("./PathGen9902");
 class Map {
 
     constructor(config) {
+        this._initConfig(config);
+        this._pathGen = new PathGen(this);
+    }
+
+    _initConfig(config){
         this._config = Object.assign(Object.create(null), config);
         const { gridSizeX, gridSizeY, gridWidth, gridHeight, spawners, obstacles, stopPoints } = config;
         this._config.startX = (gridSizeY - gridSizeX) / 2 * (gridWidth / 2);
@@ -10,7 +15,10 @@ class Map {
         this._config.spawners = spawners || {};
         this._config.obstacles = obstacles || {};
         this._config.stopPoints = stopPoints || [];
-        this._pathGen = new PathGen(this);
+        this._config.boxIds = {};
+        this._config.stopPoints.forEach(id => {
+            this._config.boxIds[id] = 1;
+        });
     }
 
     addObstacle(gridId) {
@@ -69,6 +77,11 @@ class Map {
     isObstacle(point) {
         const gridId = (typeof point === "number") ? point : this.gridToId(point);
         return this._config.obstacles[gridId];
+    }
+    isCanMove(point){
+        const gridId = (typeof point === "number") ? point : this.gridToId(point);
+        const { obstacles, boxIds } = this._config;
+        return (!obstacles[gridId]) && (!boxIds[gridId]);
     }
     genPath(start, end){
         return this._pathGen.findPathAStar(start, end);

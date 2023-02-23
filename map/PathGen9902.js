@@ -15,7 +15,7 @@ class PathGen {
             for (let y = 0; y < gridSizeY; y++) {
                 let cell = grid[x][y] = new Cell(x, y);
                 let id = this._map.gridToId(x, y);
-                cell.canMove = !this._map.isObstacle(id);
+                cell.canMove = this._map.isCanMove(id);
             }
         }
         for (let x = 0; x < gridSizeX; x++) {
@@ -29,10 +29,10 @@ class PathGen {
         const x = cell.X;
         const y = cell.Y;
         cell.neighbors = [];
-        if (x < grid.length - 1) cell.neighbors.push(grid[x + 1][y]);
-        if (x > 0) cell.neighbors.push(grid[x - 1][y]);
         if (y < grid.length - 1) cell.neighbors.push(grid[x][y + 1]);
         if (y > 0) cell.neighbors.push(grid[x][y - 1]);
+        if (x < grid.length - 1) cell.neighbors.push(grid[x + 1][y]);
+        if (x > 0) cell.neighbors.push(grid[x - 1][y]);
     }
     findPathAStar(start, end) {
         this._resetCellsInGrid();
@@ -48,14 +48,14 @@ class PathGen {
         while(unVisited.length){
             let currentIndex = 0;
             let currentCell = unVisited[0];
-    
+            
             unVisited.forEach((cell, index) => {
                 if (cell.totalCost <= currentCell.totalCost && cell.costToEnd < currentCell.costToEnd) {
                     currentCell = cell;
                     currentIndex = index;
                 }
             });
-    
+
             // found best path
             if (currentCell === this.endCell) return this._exportPath(currentCell);
 
@@ -63,9 +63,8 @@ class PathGen {
             visited.push(currentCell);
 
             currentCell.neighbors.forEach(neighbor => {
-                const id = this._map.gridToId(neighbor);
                 // check valid
-                if (this.isObstacle(id)) return;
+                if (!neighbor.canMove && (neighbor !== this.endCell)) return;
                 if (visited.includes(neighbor)) return;
                 
                 // evaluate 
@@ -86,7 +85,7 @@ class PathGen {
         return [];
     }
     _resetCellsInGrid() {
-        const { gridSizeX, gridSizeY } = this._config;
+        const { gridSizeX, gridSizeY } = this._mapConfig;
         const grid = this.grid;
         for (let x = 0; x < gridSizeX; x++) {
             for (let y = 0; y < gridSizeY; y++) {
@@ -106,7 +105,6 @@ class PathGen {
             path.push(temp.prev);
             temp = temp.prev;
         }
-        console.error(path);
         return path.map(cell => this._map.gridToId(cell)).reverse();
     }
     heuristic(position0, position1) {
@@ -130,3 +128,6 @@ class Cell {
         this.prev = null;
     }
 }
+
+module.exports = {};
+module.exports.PathGen = PathGen;
