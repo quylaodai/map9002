@@ -20,6 +20,8 @@ export class MapGui9902 extends Component {
     @property(Node)
     gridView: Node = null;
     @property(Node)
+    viewport: Node = null;
+    @property(Node)
     objectNode: Node = null;
     @property(Node)
     background: Node = null;
@@ -54,8 +56,8 @@ export class MapGui9902 extends Component {
             "Clear Map": () => { this.node.emit("CLEAR_MAP"); },
         }
         this.node.on("SET_MAP", this.setMap, this);
-        this.background.on(Node.EventType.MOUSE_DOWN, this.onMouseDown, this, false);
-        this.background.on(Node.EventType.MOUSE_MOVE, this.onMouseMove, this, false);
+        this.viewport.on(Node.EventType.MOUSE_DOWN, this.onMouseDown, this, false);
+        this.viewport.on(Node.EventType.MOUSE_MOVE, this.onMouseMove, this, false);
     }
     setMap(map){
         this._map = map;
@@ -117,11 +119,12 @@ export class MapGui9902 extends Component {
         }
     }
     onMouseMove(ev) {
+        const { gridSizeX } = this._map.getConfig();
         const location = ev.getLocation(new Vec3());
         const worldPos = this.camera.screenToWorld(location, new Vec3());
-        const localPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(worldPos);
+        const localPos = this.viewport.getComponent(UITransform).convertToNodeSpaceAR(worldPos);
         const { X, Y } = this._map.positionToGrid(localPos.x, localPos.y);
-        if (X < 0 || Y < 0 || X > 30 || Y > 30) return;
+        if (X < 0 || Y < 0 || X >= gridSizeX || Y >= gridSizeX) return;
         this._hoverLabel.string = X + "-" + Y;
         const pos = this._map.gridCenterToPosition(X, Y);
         this._hoverLabel.node.setPosition(pos.x, pos.y);
@@ -129,7 +132,7 @@ export class MapGui9902 extends Component {
     onMouseDown(ev) {
         const location = ev.getLocation(new Vec3());
         const worldPos = this.camera.screenToWorld(location, new Vec3());
-        const localPos = this.node.getComponent(UITransform).convertToNodeSpaceAR(worldPos);
+        const localPos = this.viewport.getComponent(UITransform).convertToNodeSpaceAR(worldPos);
         const gridPos = this._map.positionToGrid(localPos.x, localPos.y);
 
         switch (this._action) {
