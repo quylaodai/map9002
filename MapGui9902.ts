@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Vec3, Camera ,UITransform, Color, tween} from 'cc';
+import { _decorator, Component, Node, Label, Vec3, Camera ,UITransform, Color, tween, Mask} from 'cc';
 
 const { ccclass, property } = _decorator;
 const dat = globalThis.dat;
@@ -28,6 +28,7 @@ export class MapGui9902 extends Component {
     @property(Node)
     labelHolder: Node = null;
 
+    _mask: Mask = null;
     _viewControls: any = null;
     _viewGui: any = null;
 
@@ -40,11 +41,13 @@ export class MapGui9902 extends Component {
     _paths: any[] = [];
 
     onLoad() {
+        this._mask = this.node.getComponent(Mask);
         this._viewControls = {
             Grid: true,
             Object: true,
             Path: true,
             Background: true,
+            Mask: true,
             "Gen Path": () => { this.genPath(); },
             "Test Path": () => { this._testFullPath(); },
             "Clear Paths": () => { this.clearPath(); },
@@ -100,6 +103,9 @@ export class MapGui9902 extends Component {
                 return;
             case "Background":
                 this.node.emit("SHOW_BACKGROUND", this._viewControls.Background);
+                return;
+            case "Mask":
+                this._mask.enabled = this._viewControls.Mask;
                 return;
         }
     }
