@@ -223,8 +223,8 @@ export class MapGui9902 extends Component {
 
         this.gridView.emit("RENDER_BLOCK", point.X, point.Y, null, new Color(100, 0, 100, 255));
         const path = this._map.genPath(p1, p2);
-        console.warn(path);
         this.gridView.emit("DRAW_PATH", path);
+        this.node.emit("MOVE", path);
     }
 
 }

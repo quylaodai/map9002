@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Camera, JsonAsset } from 'cc';
+import { _decorator, Component, Node, tween, JsonAsset , v3, sp} from 'cc';
 const { ccclass, property } = _decorator;
 
 import mapModule from "./map/Map9902.js";
@@ -17,9 +17,14 @@ export class MapManager9902 extends Component {
 
     _map: any = null;
     _config: any = null;
+    _tweenMove: any = null;
+    _keyFrames: any = null;
+    _spine: any = null;
 
     onLoad(){
         this.node.on("CHANGE_MAP", this.changeMap, this);
+        this.node.on("MOVE", this.move, this);
+        this._spine = this.character.getComponent(sp.Skeleton);
     }
 
     start() {
@@ -33,8 +38,70 @@ export class MapManager9902 extends Component {
         this.node.emit("SET_MAP", this._map);
     }
 
-    move(keyFrames){
+    move(path){
+        path = this._map.convertToGridPath(path);
+        this._keyFrames = this._getKeyFrames(path);
+        this._move();
+    }
 
+    _move() {
+        const keyFrames = this._keyFrames;
+        this.character.setPosition(keyFrames[0].position);
+
+        this._tweenMove = tween(this.character);
+        keyFrames.forEach((frame, index) => {
+            const { position, dur, skin, scaleX } = frame;
+            if (index > 0) {
+                this._tweenMove
+                    .call(() => {
+                        this.character.scale = v3(scaleX, 1, 1);
+                        this._spine.setSkin(skin);
+                    })
+                    .to(dur, { position })
+            }
+        });
+        this._tweenMove.call(() => {
+            this._tweenMove = null;
+        }).start();
+    }
+    _getKeyFrames(path) {
+        let dx = 0, dy = 0, timeStep = 1; // *test
+        const frames = [];
+        const startFrame: any = {};
+        const startPos = this._map.gridCenterToPosition(path[0]);
+        startFrame.position = v3(startPos.x + dx, startPos.y + dy);
+        startFrame.dur = 0;
+        startFrame.skin = this._getSkin(path[0], path[1]);
+        startFrame.scaleX = this._getScaleX(path[0], path[1]);
+        frames.push(startFrame);
+        for (let index = 1; index < path.length; index++) {
+            const frame: any = {};
+            let p1 = path[index - 1];
+            let p2 = path[index];
+            if (p1.X === p2.X && p1.Y === p2.Y) {
+                continue;
+            }
+            if (p1.X !== p2.X && p1.Y !== p2.Y) {
+                console.error("invalid line", p1, p2);
+            }
+            const endPoint = this._map.gridCenterToPosition(p2);
+            let distance = Math.abs(p2.X - p1.X + p2.Y - p1.Y);
+            frame.dur = distance * timeStep;
+            frame.position = v3(endPoint.x + dx, endPoint.y + dy);
+            frame.skin = this._getSkin(p1, p2);
+            frame.scaleX = this._getScaleX(p1, p2);
+            frames.push(frame);
+        }
+        // console.error(frames);
+        return frames;
+    }
+    _getSkin(p1, p2) {
+        if ((p1.Y > p2.Y) || (p1.X > p2.X)) return "Back"; // down 
+        if ((p1.Y < p2.Y) || (p1.X < p2.X)) return "Front";
+        debugger;
+    }
+    _getScaleX(p1, p2) {
+        return (p1.X === p2.X) ? 1 : -1;
     }
 
 }

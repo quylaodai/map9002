@@ -84,7 +84,15 @@ class Map {
         return (!obstacles[gridId]) && (!boxIds[gridId]);
     }
     genPath(start, end){
-        return this._pathGen.findPathAStar(start, end);
+        return this._pathGen.findPathAStar(start, end); // grid path
+    }
+    convertToGridPath(path) {
+        if (typeof path[0] === "object") return path;
+        return path.map(id => this.idToGrid(id));
+    }
+    convertToIdPath(path) {
+        if (typeof path[0] === "object") return path;
+        return path.map(grid => this.gridToId(grid));
     }
 }
 
