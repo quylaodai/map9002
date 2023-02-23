@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Vec3, Camera ,UITransform, Color} from 'cc';
+import { _decorator, Component, Node, Label, Vec3, Camera ,UITransform, Color, tween} from 'cc';
 
 const { ccclass, property } = _decorator;
 const dat = globalThis.dat;
@@ -37,6 +37,7 @@ export class MapGui9902 extends Component {
     _action = ActionType.NONE;
     _map: any = null;
     _points: any[] = [];
+    _paths: any[] = [];
 
     onLoad() {
         this._viewControls = {
@@ -45,6 +46,7 @@ export class MapGui9902 extends Component {
             Path: true,
             Background: true,
             "Gen Path": () => { this.genPath(); },
+            "Test Path": () => { this._testFullPath(); },
             "Clear Paths": () => { this.clearPath(); },
         }
         this._mapControls = {
@@ -228,6 +230,43 @@ export class MapGui9902 extends Component {
         const path = this._map.genPath(p1, p2);
         this.gridView.emit("DRAW_PATH", path);
         this.node.emit("MOVE", path);
+    }
+    _testFullPath(){
+        const paths = this._paths = [];
+        let { stopPoints } = this._map.getConfig();
+        let startId = this._map.gridToId(13,27);
+        let stopIds = this.pickOutRandomElements(stopPoints, 8);
+        const len = stopIds.length;
+        for (let index = 0; index < len; index++) {
+            let start = startId;
+            let lastPath = paths.length ? paths[paths.length - 1] : null;
+            if (lastPath) {
+                start = lastPath[lastPath.length - 1];
+            }
+            let end = stopIds[index];
+            let path = this._map.genPath(start, end);
+            paths.push(path);
+        }
+        this._testMove(0);
+    }
+
+    _testMove(index = 0) {
+        let path = this._paths[index];
+        if (!path) return;
+        this.gridView.emit("DRAW_PATH", path);
+        this.node.emit("MOVE", path, () => {
+            // let nextIndex = index + 1;
+            tween(this.node)
+                .delay(1)
+                .call(() => {
+                    this._testMove(index + 1);
+                })
+                .start();
+        });
+    }
+
+    pickOutRandomElements(arr, num){
+        return arr.slice().sort(() => Math.random() - .5).slice(0, num);
     }
 
 }

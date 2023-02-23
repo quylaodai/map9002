@@ -42,14 +42,14 @@ export class MapManager9902 extends Component {
         this.node.emit("SET_MAP", this._map);
     }
 
-    move(path){
+    move(path, callback?){
         path = this._map.convertToGridPath(path);
         this._keyFrames = this._getKeyFrames(path);
-        this._moveCharacter();
+        this._moveCharacter(callback);
         this._moveViewPort();
     }
 
-    _moveCharacter() {
+    _moveCharacter(callback) {
         const keyFrames = this._keyFrames;
         this.character.setPosition(keyFrames[0].position);
 
@@ -66,6 +66,7 @@ export class MapManager9902 extends Component {
             }
         });
         this._tweenCharacter.call(() => {
+            callback && callback();
             this._tweenCharacter = null;
         }).start();
     }

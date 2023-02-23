@@ -1245,7 +1245,7 @@
     "node": {
       "__id__": 5
     },
-    "_enabled": false,
+    "_enabled": true,
     "__prefab": null,
     "_type": 0,
     "_inverted": false,
@@ -1260,7 +1260,7 @@
     "node": {
       "__id__": 5
     },
-    "_enabled": false,
+    "_enabled": true,
     "__prefab": null,
     "_customMaterial": null,
     "_srcBlendFactor": 2,
@@ -1368,10 +1368,10 @@
     "__prefab": null,
     "_alignFlags": 45,
     "_target": null,
-    "_left": 2.2737367544323206e-13,
-    "_right": 2.2737367544323206e-13,
-    "_top": -1487194.3118427075,
-    "_bottom": -1487194.3118427075,
+    "_left": -2.2737367544323206e-13,
+    "_right": -2.2737367544323206e-13,
+    "_top": -1492474.3118427075,
+    "_bottom": -1492474.3118427075,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
     "_isAbsLeft": true,
