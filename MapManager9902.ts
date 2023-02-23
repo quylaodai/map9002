@@ -33,5 +33,9 @@ export class MapManager9902 extends Component {
         this.node.emit("SET_MAP", this._map);
     }
 
+    move(keyFrames){
+
+    }
+
 }
 

@@ -86,12 +86,13 @@ export class GridView9902 extends Component {
     }
     _renderGrid() {
         this._clearGraphics();
-        let { obstacles, spawners } = this._mapConfig;
+        let { obstacles, spawners, stopPoints } = this._mapConfig;
         this.gridGraphic.clear();
         this._drawViewPort(720, 640)
         this._drawGridLines();
-        // this._drawObstacles(obstacles);
-        // this._drawSpawner(spawners);
+        this.drawObstacles(obstacles);
+        this.drawSpawner(spawners);
+        this.drawStopPoints(stopPoints);
     }
     _drawViewPort(screenWidth, screenHeight) {
         this.viewportGraphics.lineWidth = 2;
@@ -156,11 +157,7 @@ export class GridView9902 extends Component {
         } else {
             stopPoints.forEach(id => {
                 const { X, Y } = this._map.idToGrid(id);
-                for (let x = X - 1; x <= X + 1; x++) {
-                    for (let y = Y - 1; y <= Y + 1; y++) {
-                        this._renderBlock(x, y, this.obstacleGraphics, COLOR.STOP_POINT);
-                    }
-                }
+                this._renderBlock(X, Y, this.obstacleGraphics, COLOR.STOP_POINT);
             });
         }
     }
